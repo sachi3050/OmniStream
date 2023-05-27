@@ -1,124 +1,124 @@
 #
 # Traefik - Maps containers to public FQDNs accessable via https with valid certs
 #
-  traefik:
-    image: traefik:latest
-    container_name: ${TRAEFIKNAME}
-    hostname: ${TRAEFIKNAME}
-    domainname: ${MYDOMAIN}
-    restart: unless-stopped
-    ports:
-      - target: 80
-        published: 80
-        protocol: tcp
-        mode: host
-      - target: 443
-        published: 443
-        protocol: tcp
-        mode: host
-    environment:
-      - CF_API_EMAIL=${CF_EMAIL}
-      - CF_API_KEY=${CF_KEY}
-      - TZ=${TIMEZONE}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ${CONFIGS}/${TRAEFIKNAME}:/config
-      - ${LOGS}:/logs
-      - ${OMNIHOME}/healthchecks/traefikcheck:/traefikcheck
-    labels:
-      - "omni=${TRAEFIKNAME},${MYDOMAIN},yes,yes,yes"
-      - "autoheal=true"
-      - "traefik.enable=true"
-      # HTTP-to-HTTPS Redirect
-      - "traefik.http.routers.http-catchall.entrypoints=http"
-      - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
-      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-      # HTTP Routers
-      - "traefik.http.routers.traefik.entrypoints=https"
-      - "traefik.http.routers.traefik.rule=Host(`${TRAEFIKNAME}.${MYDOMAIN}`)"
-      ## Services - API
-      - "traefik.http.routers.traefik.service=api@internal"
-      ## Middlewares
-      - "traefik.http.routers.traefik.middlewares=${AUTH}"
-      - "traefik.http.middlewares.auth.basicauth.usersFile=/config/users"
-    command:
-      ##### Uncomment the next line for testing #####
-      #- --certificatesresolvers.lets-encrypt.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory # Uncomment for testing
-      - --global.checkNewVersion=true
-      - --global.sendAnonymousUsage=true
-      - --certificatesResolvers.lets-encrypt.acme.email=${CF_EMAIL}
-      - --certificatesResolvers.lets-encrypt.acme.storage=/config/acme.json
-      - --certificatesResolvers.lets-encrypt.acme.dnsChallenge.provider=cloudflare
-      - --entryPoints.http.address=:80
-      - --entryPoints.https.address=:443
-        # Allow these IPs to set the X-Forwarded-* headers - Cloudflare IPs: https://www.cloudflare.com/ips/
-      - --entrypoints.https.forwardedHeaders.trustedIPs=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/12,172.64.0.0/13,131.0.72.0/22
-      - --entryPoints.traefik.address=:8080
-      - --api=true
-      - --log=true
-      - --log.level=INFO # (Default: error) DEBUG, INFO, WARN, ERROR, FATAL, PANIC
-      - --log.filePath=/logs/traefik.log
-      - --accessLog=true
-      - --accessLog.filePath=/logs/traefik-access.log
-      - --accessLog.bufferingSize=100
-      - --accessLog.filters.statusCodes=400-499
-      - --providers.docker=true
-      - --providers.docker.endpoint=unix:///var/run/docker.sock
-      - --providers.docker.exposedByDefault=false
-      - --entrypoints.https.http.tls.certresolver=lets-encrypt
-      - --entrypoints.https.http.tls.domains[0].main=${MYDOMAIN}
-      - --entrypoints.https.http.tls.domains[0].sans=*.${MYDOMAIN}
-      - --providers.docker.network=OmniNet
-      - --providers.docker.swarmMode=false
-      - --providers.file.directory=/config/external_sites
-      - --providers.file.watch=true
-    networks:
-      - OmniNet
-    healthcheck:
-      test: ["CMD-SHELL", "/traefikcheck"]
-      interval: 10s
-      timeout: 2s
-      retries: 3
+traefik:
+  image: traefik:latest
+  container_name: ${TRAEFIKNAME}
+  hostname: ${TRAEFIKNAME}
+  domainname: ${MYDOMAIN}
+  restart: unless-stopped
+  ports:
+    - target: 80
+      published: 80
+      protocol: tcp
+      mode: host
+    - target: 443
+      published: 443
+      protocol: tcp
+      mode: host
+  environment:
+    - CF_API_EMAIL=${CF_EMAIL}
+    - CF_API_KEY=${CF_KEY}
+    - TZ=${TIMEZONE}
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - ${CONFIGS}/${TRAEFIKNAME}:/config
+    - ${LOGS}:/logs
+    - ${OMNIHOME}/healthchecks/traefikcheck:/traefikcheck
+  labels:
+    - "omni=${TRAEFIKNAME},${MYDOMAIN},yes,yes,yes"
+    - "autoheal=true"
+    - "traefik.enable=true"
+    # HTTP-to-HTTPS Redirect
+    - "traefik.http.routers.http-catchall.entrypoints=http"
+    - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
+    - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+    - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+    # HTTP Routers
+    - "traefik.http.routers.traefik.entrypoints=https"
+    - "traefik.http.routers.traefik.rule=Host(`${TRAEFIKNAME}.${MYDOMAIN}`)"
+    ## Services - API
+    - "traefik.http.routers.traefik.service=api@internal"
+    ## Middlewares
+    - "traefik.http.routers.traefik.middlewares=${AUTH}"
+    - "traefik.http.middlewares.auth.basicauth.usersFile=/config/users"
+  command:
+    ##### Uncomment the next line for testing #####
+    #- --certificatesresolvers.lets-encrypt.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory # Uncomment for testing
+    - --global.checkNewVersion=true
+    - --global.sendAnonymousUsage=true
+    - --certificatesResolvers.lets-encrypt.acme.email=${CF_EMAIL}
+    - --certificatesResolvers.lets-encrypt.acme.storage=/config/acme.json
+    - --certificatesResolvers.lets-encrypt.acme.dnsChallenge.provider=cloudflare
+    - --entryPoints.http.address=:80
+    - --entryPoints.https.address=:443
+      # Allow these IPs to set the X-Forwarded-* headers - Cloudflare IPs: https://www.cloudflare.com/ips/
+    - --entrypoints.https.forwardedHeaders.trustedIPs=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/12,172.64.0.0/13,131.0.72.0/22
+    - --entryPoints.traefik.address=:8080
+    - --api=true
+    - --log=true
+    - --log.level=INFO # (Default: error) DEBUG, INFO, WARN, ERROR, FATAL, PANIC
+    - --log.filePath=/logs/traefik.log
+    - --accessLog=true
+    - --accessLog.filePath=/logs/traefik-access.log
+    - --accessLog.bufferingSize=100
+    - --accessLog.filters.statusCodes=400-499
+    - --providers.docker=true
+    - --providers.docker.endpoint=unix:///var/run/docker.sock
+    - --providers.docker.exposedByDefault=false
+    - --entrypoints.https.http.tls.certresolver=lets-encrypt
+    - --entrypoints.https.http.tls.domains[0].main=${MYDOMAIN}
+    - --entrypoints.https.http.tls.domains[0].sans=*.${MYDOMAIN}
+    - --providers.docker.network=OmniNet
+    - --providers.docker.swarmMode=false
+    - --providers.file.directory=/config/external_sites
+    - --providers.file.watch=true
+  networks:
+    - OmniNet
+  healthcheck:
+    test: ["CMD-SHELL", "/traefikcheck"]
+    interval: 10s
+    timeout: 2s
+    retries: 3
 
 #
 # OAuth - Forward Authentication
 #
 
-  oauth:
-    image: thomseddon/traefik-forward-auth:latest
-    container_name: ${OAUTHNAME}
-    hostname: ${OAUTHNAME}
-    domainname: ${MYDOMAIN}
-    restart: unless-stopped
-    networks:
-      - OmniNet
-    security_opt:
-      - no-new-privileges:true
-    environment:
-      PROVIDERS_GOOGLE_CLIENT_ID: ${OAUTHID}
-      PROVIDERS_GOOGLE_CLIENT_SECRET: ${OAUTHSECRET}
-      SECRET: ${OAUTHSUPERSECRET}
-      CONFIG: /configs/authdomains
-      COOKIE_DOMAIN: ${MYDOMAIN}
-      COOKIE-NAME: _forward_auth_csrf
-      INSECURE_COOKIE: "false"
-      AUTH_HOST: ${OAUTHNAME}.${MYDOMAIN}
-      WHITELIST: ${OAUTHUSER}
-      LOG_LEVEL: info
-      LIFETIME: 2592000 # 30 days
-      DEFAULT_ACTION: allow
-      DEFAULT_PROVIDER: google
-    labels:
-      - "omni=${OAUTHNAME},${MYDOMAIN},yes,yes,yes"
-      - autoheal=true
-      - traefik.enable=true
-      - traefik.http.middlewares.oauth.forwardauth.address=http://oauth:4181
-      - traefik.http.middlewares.oauth.forwardauth.authResponseHeaders=X-Forwarded-User
-      - traefik.http.middlewares.oauth.forwardauth.trustForwardHeader=true
-      - traefik.http.routers.oauth.rule=Host(`${OAUTHNAME}.${MYDOMAIN}`)
-      - traefik.http.routers.oauth.tls=true
-      - traefik.http.routers.oauth.tls.certresolver=lets-encrypt
-      - traefik.http.services.oauth.loadbalancer.server.port=4181
-    volumes:
-      - ${CONFIGS}/${OAUTHNAME}:/configs:ro
+oauth:
+  image: thomseddon/traefik-forward-auth:latest
+  container_name: ${OAUTHNAME}
+  hostname: ${OAUTHNAME}
+  domainname: ${MYDOMAIN}
+  restart: unless-stopped
+  networks:
+    - OmniNet
+  security_opt:
+    - no-new-privileges:true
+  environment:
+    PROVIDERS_GOOGLE_CLIENT_ID: ${OAUTHID}
+    PROVIDERS_GOOGLE_CLIENT_SECRET: ${OAUTHSECRET}
+    SECRET: ${OAUTHSUPERSECRET}
+    CONFIG: /configs/authdomains
+    COOKIE_DOMAIN: ${MYDOMAIN}
+    COOKIE-NAME: _forward_auth_csrf
+    INSECURE_COOKIE: "false"
+    AUTH_HOST: ${OAUTHNAME}.${MYDOMAIN}
+    WHITELIST: ${OAUTHUSER}
+    LOG_LEVEL: info
+    LIFETIME: 2592000 # 30 days
+    DEFAULT_ACTION: allow
+    DEFAULT_PROVIDER: google
+  labels:
+    - "omni=${OAUTHNAME},${MYDOMAIN},yes,yes,yes"
+    - autoheal=true
+    - traefik.enable=true
+    - traefik.http.middlewares.oauth.forwardauth.address=http://oauth:4181
+    - traefik.http.middlewares.oauth.forwardauth.authResponseHeaders=X-Forwarded-User
+    - traefik.http.middlewares.oauth.forwardauth.trustForwardHeader=true
+    - traefik.http.routers.oauth.rule=Host(`${OAUTHNAME}.${MYDOMAIN}`)
+    - traefik.http.routers.oauth.tls=true
+    - traefik.http.routers.oauth.tls.certresolver=lets-encrypt
+    - traefik.http.services.oauth.loadbalancer.server.port=4181
+  volumes:
+    - ${CONFIGS}/${OAUTHNAME}:/configs:ro
