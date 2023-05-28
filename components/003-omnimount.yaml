@@ -1,38 +1,38 @@
-  omnimount:
-    image: kelinger/omnimount:latest
-    container_name: omnimount
-    hostname: omnimount
-    restart: unless-stopped
-    environment:
-      - USERID=${USERID}
-      - GROUPID=${GROUPID}
-      - MERGEMOUNT=${MERGEMOUNT}
-      - MEDIA=${MEDIA}
-      - RCLONESERVICE=${RCLONESERVICE}
-      - RCLONEMOUNT=${RCLONEMOUNT}
-      - UNSYNCED=${UNSYNCED}
-      - UPLOADCACHE=${UPLOADCACHE}
-      - TURBOMAX=${TURBOMAX}
-      - TZ=${TIMEZONE}
-    volumes:
-      - ${CONFIGS}/omnimount:/config
-      - ${LOGS}:/logs
-      - ${OMNIHOME}/healthchecks/omnimountcheck:/omnimountcheck
-      - type: bind
-        source: ${OMNIHOME}/mnt
-        target: /mnt
-        bind:
-          propagation: shared
-    labels:
-      - traefik.enable=false
-      - autoheal=true
-    networks:
-      - OmniNet
-    privileged: true
-    devices:
-      - '/dev/fuse'
-    healthcheck:
-      test: ["CMD-SHELL", "/omnimountcheck"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+omnimount:
+  image: kelinger/omnimount:latest
+  container_name: omnimount
+  hostname: omnimount
+  restart: unless-stopped
+  environment:
+    - USERID=${USERID}
+    - GROUPID=${GROUPID}
+    - MERGEMOUNT=${MERGEMOUNT}
+    - MEDIA=${MEDIA}
+    - RCLONESERVICE=${RCLONESERVICE}
+    - RCLONEMOUNT=${RCLONEMOUNT}
+    - UNSYNCED=${UNSYNCED}
+    - UPLOADCACHE=${UPLOADCACHE}
+    - TURBOMAX=${TURBOMAX}
+    - TZ=${TIMEZONE}
+  volumes:
+    - ${CONFIGS}/omnimount:/config
+    - ${LOGS}:/logs
+    - ${OMNIHOME}/healthchecks/omnimountcheck:/omnimountcheck
+    - type: bind
+      source: ${OMNIHOME}/mnt
+      target: /mnt
+      bind:
+        propagation: shared
+  labels:
+    - traefik.enable=false
+    - autoheal=true
+  networks:
+    - OmniNet
+  privileged: true
+  devices:
+    - '/dev/fuse'
+  healthcheck:
+    test: ["CMD-SHELL", "/omnimountcheck"]
+    interval: 10s
+    timeout: 5s
+    retries: 3
