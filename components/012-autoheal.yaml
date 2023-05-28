@@ -1,13 +1,13 @@
-  autoheal:
-    image: willfarrell/autoheal
-    container_name: ${HEALNAME}
-    hostname: ${HEALNAME}
-    restart: unless-stopped
-    environment:
-      - AUTOHEAL_CONTAINER_LABEL=autoheal
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    labels:
-      - traefik.enable=false
-    networks:
-      - OmniNet
+autoheal:
+  image: willfarrell/autoheal
+  container_name: ${HEALNAME}
+  hostname: ${HEALNAME}
+  restart: unless-stopped
+  environment:
+    - AUTOHEAL_CONTAINER_LABEL=autoheal
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+  labels:
+    - traefik.enable=false
+  networks:
+    - OmniNet
