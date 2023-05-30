@@ -1,44 +1,44 @@
 #
 # Plex - Media streaming server with Intel hardware GPU
 #
-  plex:
-    image: plexinc/pms-docker:plexpass
-    container_name: ${PLEXNAME}
-    hostname: ${PLEXNAME}
-    domainname: ${MYDOMAIN}
-    restart: unless-stopped
-    depends_on:
-      traefik:
-        condition: service_healthy
-      omnimount:
-        condition: service_healthy
-    environment:
-      - ADVERTISE_IP=https://${PLEXNAME}.${MYDOMAIN}
-      - PLEX_UID=${USERID}
-      - PLEX_GID=${GROUPID}
-      - TZ=${TIMEZONE}
-      - UMASK_SET=022
-      - PLEX_CLAIM=${PLEXCLAIM}
-    labels:
-      - "omni=${PLEXNAME},${MYDOMAIN},yes,yes,yes"
-      - autoheal=true
-      - traefik.enable=true
-      - traefik.http.routers.plex.rule=Host(`${PLEXNAME}.${MYDOMAIN}`)
-      - traefik.http.routers.plex.tls=true
-      - traefik.http.routers.plex.tls.certresolver=lets-encrypt
-      - traefik.http.services.plex.loadbalancer.server.port=32400
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ${CONFIGS}/${PLEXNAME}:/config
-      - /tmp:/transcode
-      - /bin/netstat:/bin/netstat:ro
-      - ${MEDIA}:/Media
-      - ${OMNIHOME}/healthchecks/plexcheck:/plexcheck
-      - "${LOGS}:/config/Library/Application Support/Plex Media Server/Logs"
-    networks:
-      - OmniNet
-    healthcheck:
-      test: ["CMD-SHELL", "/plexcheck"]
-      interval: 10s
-      timeout: 2s
-      retries: 3
+plex:
+  image: plexinc/pms-docker:plexpass
+  container_name: ${PLEXNAME}
+  hostname: ${PLEXNAME}
+  domainname: ${MYDOMAIN}
+  restart: unless-stopped
+  depends_on:
+    traefik:
+      condition: service_healthy
+    omnimount:
+      condition: service_healthy
+  environment:
+    - ADVERTISE_IP=https://${PLEXNAME}.${MYDOMAIN}
+    - PLEX_UID=${USERID}
+    - PLEX_GID=${GROUPID}
+    - TZ=${TIMEZONE}
+    - UMASK_SET=022
+    - PLEX_CLAIM=${PLEXCLAIM}
+  labels:
+    - "omni=${PLEXNAME},${MYDOMAIN},yes,yes,yes"
+    - autoheal=true
+    - traefik.enable=true
+    - traefik.http.routers.plex.rule=Host(`${PLEXNAME}.${MYDOMAIN}`)
+    - traefik.http.routers.plex.tls=true
+    - traefik.http.routers.plex.tls.certresolver=lets-encrypt
+    - traefik.http.services.plex.loadbalancer.server.port=32400
+  volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - ${CONFIGS}/${PLEXNAME}:/config
+    - /tmp:/transcode
+    - /bin/netstat:/bin/netstat:ro
+    - ${MEDIA}:/Media
+    - ${OMNIHOME}/healthchecks/plexcheck:/plexcheck
+    - "${LOGS}:/config/Library/Application Support/Plex Media Server/Logs"
+  networks:
+    - OmniNet
+  healthcheck:
+    test: ["CMD-SHELL", "/plexcheck"]
+    interval: 10s
+    timeout: 2s
+    retries: 3
