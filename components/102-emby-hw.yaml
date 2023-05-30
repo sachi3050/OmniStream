@@ -1,43 +1,43 @@
 #
 # Emby - Media streaming server
 #
-  emby:
-    image: emby/embyserver
-    container_name: ${EMBYNAME}
-    hostname: ${EMBYNAME}
-    domainname: ${MYDOMAIN}
-    restart: unless-stopped
-    depends_on:
-      traefik:
-        condition: service_healthy
-      omnimount:
-        condition: service_healthy
-    environment:
-      - ADVERTISE_IP=https://${EMBYNAME}.${MYDOMAIN}
-      - UID=${USERID}
-      - GID=${GROUPID}
-      - GIDLIST=${GPUGIDS}
-    labels:
-      - "omni=${EMBYNAME},${MYDOMAIN},yes,yes,yes"
-      - autoheal=true
-      - traefik.enable=true
-      - traefik.http.routers.emby.rule=Host(`${EMBYNAME}.${MYDOMAIN}`)
-      - traefik.http.routers.emby.tls=true
-      - traefik.http.routers.emby.tls.certresolver=lets-encrypt
-      - traefik.http.services.emby.loadbalancer.server.port=8096
-    volumes:
-      - ${CONFIGS}/${EMBYNAME}:/config
-      - ${MEDIA}:/Media
-      - /etc/localtime:/etc/localtime:ro
-      - /tmp/Emby-transcode:/transcode
-      - ${OMNIHOME}/healthchecks/embycheck:/embycheck
-      - ${LOGS}:/config/logs
-    devices:
-      - /dev/dri:/dev/dri
-    networks:
-      - OmniNet
-    healthcheck:
-      test: ["CMD-SHELL", "/embycheck"]
-      interval: 10s
-      timeout: 2s
-      retries: 3
+emby:
+  image: emby/embyserver
+  container_name: ${EMBYNAME}
+  hostname: ${EMBYNAME}
+  domainname: ${MYDOMAIN}
+  restart: unless-stopped
+  depends_on:
+    traefik:
+      condition: service_healthy
+    omnimount:
+      condition: service_healthy
+  environment:
+    - ADVERTISE_IP=https://${EMBYNAME}.${MYDOMAIN}
+    - UID=${USERID}
+    - GID=${GROUPID}
+    - GIDLIST=${GPUGIDS}
+  labels:
+    - "omni=${EMBYNAME},${MYDOMAIN},yes,yes,yes"
+    - autoheal=true
+    - traefik.enable=true
+    - traefik.http.routers.emby.rule=Host(`${EMBYNAME}.${MYDOMAIN}`)
+    - traefik.http.routers.emby.tls=true
+    - traefik.http.routers.emby.tls.certresolver=lets-encrypt
+    - traefik.http.services.emby.loadbalancer.server.port=8096
+  volumes:
+    - ${CONFIGS}/${EMBYNAME}:/config
+    - ${MEDIA}:/Media
+    - /etc/localtime:/etc/localtime:ro
+    - /tmp/Emby-transcode:/transcode
+    - ${OMNIHOME}/healthchecks/embycheck:/embycheck
+    - ${LOGS}:/config/logs
+  devices:
+    - /dev/dri:/dev/dri
+  networks:
+    - OmniNet
+  healthcheck:
+    test: ["CMD-SHELL", "/embycheck"]
+    interval: 10s
+    timeout: 2s
+    retries: 3
